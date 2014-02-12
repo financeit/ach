@@ -12,7 +12,7 @@ module ACH::Records
         nil, nil, /\A\d{2}\z/
     field :routing_number, String, lambda { |f| f.rjust(8, '0') }
     field :check_digit, Integer, lambda { |f| sprintf('%01d', f)}, 0
-    field :account_number, String, lambda { |f| f.rjust(17, '0') }
+    field :account_number, String, lambda { |f| f.ljust(17, ' ') }
     field :amount, Integer, lambda { |f| sprintf('%010d', (f * 100).to_s.rjust(10, '0').to_i) }
     field :individual_id_number, String, lambda { |f| f.to_s.rjust(15, '0') }
     field :individual_name, String, lambda { |f| left_justify(f, 22)}
@@ -72,7 +72,6 @@ module ACH::Records
       ach_string = super
 
       self.addenda.each {|a|
-        a.entry_detail_sequence_number = self.trace_number
         ach_string << "\r\n" + a.to_ach
       }
       return ach_string

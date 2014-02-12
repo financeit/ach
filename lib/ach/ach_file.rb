@@ -117,8 +117,8 @@ module ACH
             ACH::Addendum.new
           end
           ad.type_code                      = type_code
-          ad.payment_data                   = line[3..82].strip
-          ad.sequence_number                = line[83..86].strip.to_i
+          ad.payment_data                   = line[3..78].strip
+          ad.sequence_number                = line[79..86].strip.to_i
           ad.entry_detail_sequence_number   = line[87..93].to_i
           ed.addenda << ad
         when '8'

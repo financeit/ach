@@ -4,8 +4,8 @@ module ACH::Records
 
     const_field :record_type, '7'
     field :type_code, String, nil, '05', /\A\d{2}\z/
-    field :payment_data, String, lambda { |f| left_justify(f, 80)}
-    field :sequence_number, Integer, lambda { |f| sprintf('%04d', f)}
+    field :payment_data, String, lambda { |f| left_justify(f, 76)}
+    field :sequence_number, Integer, lambda { |f| sprintf('%08d', f)}
     field :entry_detail_sequence_number, Integer, lambda { |f| sprintf('%07d', f)}
 
     # NOTE: When the API can change, these subclasses should override the
@@ -30,6 +30,7 @@ module ACH::Records
       end
     end
 
+    # NACHA OR page 151.
     class Return < Addendum
       @fields = Addendum.fields
 
