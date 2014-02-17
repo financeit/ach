@@ -21,9 +21,10 @@ module ACH
       has_credits           = false
       
       @entries.each do |e|
-        e.populate_check_digit
+        # Note: entry hash must be updated before e.update_routing_number()
+        @control.entry_hash += (e.routing_number.to_i / 10)
         e.debit? ? @control.debit_total += e.amount : @control.credit_total += e.amount
-        @control.entry_hash             += (e.routing_number.to_i / 10)
+        e.update_routing_number
       end
 
       has_debits  = true if @control.debit_total  != 0.00

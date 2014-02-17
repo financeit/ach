@@ -8,10 +8,8 @@ module ACH::Records
     attr_accessor :sorter
 
     const_field :record_type, '6'
-    field :transaction_code, String,
-        nil, nil, /\A\d{2}\z/
-    field :routing_number, String, lambda { |f| f.rjust(8, '0') }
-    field :check_digit, Integer, lambda { |f| sprintf('%01d', f)}, 0
+    field :transaction_code, String, nil, nil, /\A\d{2}\z/
+    field :routing_number, String, nil, nil, /\d{8,9}\z/
     field :account_number, String, lambda { |f| f.ljust(17, ' ') }
     field :amount, Integer, lambda { |f| sprintf('%010d', (f * 100).to_s.rjust(10, '0').to_i) }
     field :individual_id_number, String, lambda { |f| f.to_s.rjust(15, '0') }
@@ -34,13 +32,23 @@ module ACH::Records
       return self.amount
     end
 
-    # Per NACHA 2013 Operating Rules, page 104.
-    def populate_check_digit
-      weighted_sum = routing_number.to_s.rjust(8, '0').split(//).map(&:to_i).zip(CHECK_DIGIT_WEIGHTS).map{ |i,j| i * j }.inject(:+)
-      nearest_multiple_of_ten  = weighted_sum.round(-1)
-      nearest_multiple_of_ten += 10 if nearest_multiple_of_ten < weighted_sum
-      self.check_digit         = nearest_multiple_of_ten - weighted_sum
+    def update_routing_number
+      result  = self.routing_number
+      result += self.calculate_check_digit.to_s if result.size == 8
+
+      self.routing_number = result.rjust(9, '0')
     end
+
+    # Per NACHA 2013 Operating Rules, page 104.
+    def calculate_check_digit
+      weighted_sum = routing_number.to_s.rjust(8, '0').split(//).map(&:to_i).zip(CHECK_DIGIT_WEIGHTS).map{ |i,j| i * j }.inject(:+)
+
+      next_highest_multiple_of_ten  = weighted_sum.round(-1)
+      next_highest_multiple_of_ten += 10 if next_highest_multiple_of_ten < weighted_sum
+
+      next_highest_multiple_of_ten - weighted_sum
+    end
+
   end
 
   class CtxEntryDetail < EntryDetail
