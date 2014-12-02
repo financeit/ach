@@ -30,8 +30,8 @@ module ACH
       has_debits  = true if @control.debit_total  != 0.00
       has_credits = true if @control.credit_total != 0.00
 
-      @control.debit_total  = (@control.debit_total  * 100).to_i
-      @control.credit_total = (@control.credit_total * 100).to_i
+      @control.debit_total  = (@control.debit_total  * 100).round(2).to_i
+      @control.credit_total = (@control.credit_total * 100).round(2).to_i
       
       # Set service class codes if needed
       if @header.service_class_code.nil?
