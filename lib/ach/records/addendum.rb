@@ -18,7 +18,7 @@ module ACH::Records
       end
 
       def original_entry_trace_number
-        payment_data[3..17]
+        payment_data[11..17]
       end
 
       def original_receiving_dfi_identification
@@ -39,7 +39,7 @@ module ACH::Records
       end
 
       def original_entry_trace_number
-        payment_data[3..17]
+        payment_data[11..17]
       end
 
       def date_of_death
